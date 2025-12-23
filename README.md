@@ -22,8 +22,6 @@
 
 **AsyncWiFiManagerSimple** is a lightweight, fully asynchronous WiFi configuration manager for **ESP32**, designed for reliability, simplicity, and minimal flash usage.
 
-It provides a modern captive portal, dynamic WiFi scanning, multi-network storage, and automatic reconnection — all **without SPIFFS or external files**.
-
 The entire configuration page is stored in **PROGMEM**, making the library ideal for compact IoT devices, long-running systems, and production-grade embedded applications.
 
 ---
@@ -116,4 +114,5 @@ void loop() {
 **Custom AP SSID and password**
 ```cpp
 wifiManager.Setup("MyAP", "MyPassword");
+
 
