@@ -1,0 +1,4 @@
+AsyncWiFiManagerSimple  KEYWORD1
+WiFiManager KEYWORD1
+ESP32   KEYWORD2
+Captive KEYWORD2
