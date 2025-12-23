@@ -112,7 +112,8 @@ void setup() {
 void loop() {
   wifiManager.loop();
 }
-
+```
 **Custom AP SSID and password**
 ```cpp
 wifiManager.Setup("MyAP", "MyPassword");
+
