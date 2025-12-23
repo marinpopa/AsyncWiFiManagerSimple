@@ -1,4 +1,4 @@
-# AsyncWiFiManagerSimple
+# 🚀 AsyncWiFiManagerSimple
 
 <p align="center">
   <img src="docs/logo.svg" width="180" alt="AsyncWiFiManagerSimple Logo">
@@ -6,7 +6,7 @@
 
 <p align="center">
   <b>Lightweight Async WiFi Manager for ESP32</b><br>
-  Captive portal • Dynamic WiFi scanning • No SPIFFS • PROGMEM HTML
+  Captive Portal • Dynamic WiFi Scanning • No SPIFFS • PROGMEM HTML
 </p>
 
 <p align="center">
@@ -18,228 +18,86 @@
 
 ---
 
-🧩 1. Arhitectura generală
-Biblioteca este construită în jurul a patru componente principale:
+## 📘 Overview
 
-1.1. ESPAsyncWebServer
-Gestionează serverul HTTP asincron.
+**AsyncWiFiManagerSimple** is a lightweight, fully asynchronous WiFi configuration manager for **ESP32**, designed for reliability, simplicity, and minimal flash usage.
 
-Permite servirea paginii HTML direct din PROGMEM.
+It provides a modern captive portal, dynamic WiFi scanning, multi-network storage, and automatic reconnection — all **without SPIFFS or external files**.
 
-Asigură răspunsuri rapide și non‑blocante.
+The entire configuration page is stored in **PROGMEM**, making the library ideal for compact IoT devices, long-running systems, and production-grade embedded applications.
 
-1.2. DNSServer
-Interceptează toate cererile DNS.
+---
 
-Redirecționează orice domeniu către IP‑ul AP‑ului.
+## 📦 Installation
 
-Creează efectul de captive portal.
+### ✅ Arduino Library Manager (recommended)
 
-1.3. Preferences (NVS)
-Stochează rețelele WiFi salvate.
+1. Open **Arduino IDE**
+2. Go to **Sketch → Include Library → Manage Libraries…**
+3. Search for **AsyncWiFiManagerSimple**
+4. Click **Install**
 
-Persistă datele între restarturi.
+> ⚠️ Available after the library is accepted into the Arduino Library Registry.
 
-Nu necesită sistem de fișiere.
+---
 
-1.4. WiFi + scanare dinamică
-Scanare în timp real a rețelelor disponibile.
+### 📁 Install from GitHub (ZIP)
 
-Sortare după RSSI în interfața web.
+1. Download the latest release from GitHub  
+   **Code → Download ZIP**
+2. Open **Arduino IDE**
+3. Go to **Sketch → Include Library → Add .ZIP Library**
+4. Select the downloaded ZIP file
 
-Conectare secvențială la rețelele salvate.
+---
 
-🔄 2. Fluxul de funcționare
-2.1. Inițializare (Setup)
-La pornire:
+### 🔧 Dependencies
 
-Se inițializează Serial și Preferences.
+This library requires the following dependencies:
 
-Se încarcă rețelele salvate din NVS.
+- **ESPAsyncWebServer**
+- **AsyncTCP** (ESP32)
+- **DNSServer** (included with ESP32 core)
 
-Se încearcă conectarea la fiecare rețea.
+Make sure they are installed via **Library Manager**.
 
-Dacă toate încercările eșuează → se pornește modul AP.
+---
 
-Biblioteca suportă două moduri de inițializare:
+## 🧩 Architecture
 
-Mod implicit
-cpp
+The library is built on four core components:
+
+### 1️⃣ ESPAsyncWebServer
+- Fully asynchronous HTTP server  
+- Serves HTML directly from PROGMEM  
+- Non-blocking and highly performant  
+
+### 2️⃣ DNSServer
+- Redirects all DNS queries to the ESP32 AP  
+- Creates a true captive portal experience  
+
+### 3️⃣ Preferences (NVS)
+- Stores up to **4 WiFi networks**
+- Persistent across reboots  
+- No filesystem required  
+
+### 4️⃣ WiFi + Dynamic Scanning
+- Real-time WiFi scanning  
+- Sorted by RSSI  
+- Sequential connection attempts to saved networks  
+
+---
+
+## 🔄 How It Works
+
+### 1️⃣ Startup Sequence
+
+On boot:
+- Serial and NVS are initialized  
+- Saved networks are loaded  
+- ESP32 attempts to connect to each network  
+- If all attempts fail → **AP Mode starts automatically**
+
+**Default AP credentials**
+```cpp
 wifiManager.Setup();
-Mod cu SSID și parolă AP personalizate
-cpp
-wifiManager.Setup("MyAP", "MyPassword");
-2.2. Modul AP (Config Mode)
-Dacă ESP32 nu se poate conecta la nicio rețea salvată:
-
-se activează modul Access Point
-
-se pornește serverul web
-
-se pornește DNS serverul pentru captive portal
-
-se servește pagina HTML din PROGMEM
-
-Avantaje:
-nu necesită SPIFFS
-
-nu necesită fișiere externe
-
-nu crește consumul de flash
-
-2.3. Portalul web
-Portalul include:
-
-scanare WiFi în timp real (/scan)
-
-sortare după puterea semnalului
-
-selectoare pentru două rețele
-
-câmpuri pentru parole
-
-buton pentru ștergerea tuturor rețelelor salvate
-
-Pagina este stocată în PROGMEM:
-
-nu ocupă RAM
-
-nu necesită sistem de fișiere
-
-este servită instant
-
-2.4. Salvarea rețelelor
-La POST /add:
-
-se șterg rețelele vechi
-
-se salvează până la 4 rețele
-
-se repornește automat dispozitivul
-
-La POST /clear:
-
-se șterg toate rețelele
-
-se repornește dispozitivul
-
-2.5. Reconectare automată
-În modul normal:
-
-dacă WiFi pică → se încearcă reconectarea la fiecare secundă
-
-dacă numărul de încercări depășește RECONNECT_ATTEMPTS → restart automat
-
-dacă reconectarea reușește → se afișează IP‑ul local
-
-Acest mecanism asigură:
-
-stabilitate pe termen lung
-
-recuperare automată după pierderea semnalului
-
-funcționare autonomă fără intervenție umană
-
-🧠 3. Design intern și decizii tehnice
-3.1. De ce PROGMEM în loc de SPIFFS?
-Elimină necesitatea montării SPIFFS.
-
-Reduce riscul de corupere a sistemului de fișiere.
-
-Reduce consumul de flash.
-
-Simplifică distribuirea bibliotecii (un singur fișier .h/.cpp).
-
-3.2. De ce ESPAsyncWebServer?
-non‑blocant
-
-suport pentru multiple conexiuni simultane
-
-ideal pentru portaluri captive
-
-performanță superioară față de WebServer clasic
-
-3.3. De ce Preferences (NVS)?
-stocare sigură și persistentă
-
-fără overhead de filesystem
-
-acces rapid la date
-
-📡 4. Interfața web
-Portalul este:
-
-responsive
-
-minimalist
-
-modern
-
-compatibil cu toate browserele
-
-generat 100% dinamic
-
-Scanarea WiFi este realizată prin:
-
-js
-fetch('/scan')
-Rezultatul este sortat după RSSI și populat în <select>.
-
-🛡️ 5. Mecanisme de siguranță
-Biblioteca include:
-
-✔ watchdog de reconectare
-✔ restart automat după prea multe încercări
-✔ fallback în AP Mode
-✔ timeout configurabil pentru portal
-✔ protecție la salvarea rețelelor invalide
-Aceste mecanisme fac biblioteca potrivită pentru:
-
-sisteme IoT autonome
-
-dispozitive industriale
-
-echipamente care trebuie să ruleze luni/ani fără intervenție
-----
-## 📦 Instalare
-
-### Arduino IDE
-1. Copiază folderul `AsyncWiFiManagerSimple` în: Documents/Arduino/libraries/
-2. Repornește Arduino IDE.
-
-### PlatformIO
-Adaugă în `platformio.ini`:
-
-
-🧪 6. Exemplu de utilizare complet
-
-cpp
-#include <AsyncWiFiManagerSimple.h>
-
-AsyncWiFiManagerSimple wifiManager;
-
-void setup() {
-  wifiManager.Setup("MyDevice_Config", "MyPassword123");
-}
-
-void loop() {
-  wifiManager.loop();
-}
-🚀 7. Avantaje tehnice
-zero fișiere externe
-
-zero SPIFFS
-
-zero blocări
-
-HTML în PROGMEM
-
-asincron
-
-fallback automat
-
-debug complet
-
-footprint minim în flash
-}
-
