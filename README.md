@@ -97,7 +97,22 @@ On boot:
 - Saved networks are loaded  
 - ESP32 attempts to connect to each network  
 - If all attempts fail → **AP Mode starts automatically**
+ 
+## Example Usage ##
 
 **Default AP credentials**
 ```cpp
-wifiManager.Setup();
+#include <AsyncWiFiManagerSimple.h>
+
+AsyncWiFiManagerSimple wifiManager;
+
+void setup() {
+  wifiManager.Setup();  
+
+void loop() {
+  wifiManager.loop();
+}
+
+**Custom AP SSID and password**
+```cpp
+wifiManager.Setup("MyAP", "MyPassword");
