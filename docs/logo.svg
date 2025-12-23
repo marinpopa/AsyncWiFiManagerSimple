@@ -1,0 +1,11 @@
+
+# 🎨 **Logo SVG pentru repo**
+
+<svg width="300" height="300" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+  <rect width="300" height="300" rx="20" fill="#1e88e5"/>
+  <circle cx="150" cy="150" r="90" fill="white"/>
+  <path d="M110 150h80M150 110v80" stroke="#1e88e5" stroke-width="14" stroke-linecap="round"/>
+  <text x="150" y="265" font-size="32" text-anchor="middle" fill="white" font-family="Arial">
+    WiFi Manager
+  </text>
+</svg>
