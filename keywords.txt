@@ -1,4 +1,7 @@
-AsyncWiFiManagerSimple  KEYWORD1
-WiFiManager KEYWORD1
-ESP32   KEYWORD2
-Captive KEYWORD2
+# AsyncWiFiManagerSimple syntax highlighting
+AsyncWiFiManagerSimple	KEYWORD1
+Setup					KEYWORD2
+loop					KEYWORD2
+ScanNetworks			KEYWORD2
+ClearNetworks			KEYWORD2
+ConnectNext			KEYWORD2
