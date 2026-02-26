@@ -201,6 +201,43 @@ void AsyncWiFiManagerSimple::startConfigMode() {
         handleDelete(request);
     });
 
+    // ----- CAPTIVE PORTAL DETECTION ROUTES -----
+
+// Android / Chrome
+server.on("/generate_204", HTTP_GET, [&](AsyncWebServerRequest *request) {
+    request->redirect("http://192.168.4.1/");
+});
+server.on("/gen_204", HTTP_GET, [&](AsyncWebServerRequest *request) {
+    request->redirect("http://192.168.4.1/");
+});
+
+// Windows
+server.on("/connecttest.txt", HTTP_GET, [&](AsyncWebServerRequest *request) {
+    request->redirect("http://192.168.4.1/");
+});
+server.on("/redirect", HTTP_GET, [&](AsyncWebServerRequest *request) {
+    request->redirect("http://192.168.4.1/");
+});
+server.on("/hotspot-detect.html", HTTP_GET, [&](AsyncWebServerRequest *request) {
+    request->redirect("http://192.168.4.1/");
+});
+
+// Apple (iOS / macOS)
+server.on("/library/test/success.html", HTTP_GET, [&](AsyncWebServerRequest *request) {
+    request->redirect("http://192.168.4.1/");
+});
+server.on("/hotspotdetect.html", HTTP_GET, [&](AsyncWebServerRequest *request) {
+    request->redirect("http://192.168.4.1/");
+});
+server.on("/success.txt", HTTP_GET, [&](AsyncWebServerRequest *request) {
+    request->send(200, "text/plain", "success");
+});
+
+// Catch-all pentru orice altă cerere necunoscută → redirect
+server.onNotFound([&](AsyncWebServerRequest *request) {
+    request->redirect("http://192.168.4.1/");
+});
+
     server.begin();
     inConfigMode = true;
     configStartTime = millis();
