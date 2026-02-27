@@ -165,6 +165,8 @@ bool AsyncWiFiManagerSimple::connectToSavedNetwork() {
 // ---------------------------------------------------------
 
 void AsyncWiFiManagerSimple::startConfigMode() {
+	dnsServer.stop(); // Oprește orice instanță anterioară
+    dnsServer.start(53, "*", WiFi.softAPIP());
     Serial.println("[AP] Pornesc modul Access Point...");
     Serial.printf("[AP] SSID: %s\n", apSSID);
     Serial.printf("[AP] PASS: %s\n", apPASS);
@@ -172,25 +174,30 @@ void AsyncWiFiManagerSimple::startConfigMode() {
     WiFi.mode(WIFI_AP);
     WiFi.softAP(apSSID, apPASS);
 
-    Serial.printf("[AP] IP AP: %s\n", WiFi.softAPIP().toString().c_str());
+    IPAddress apIP = WiFi.softAPIP();
+    Serial.printf("[AP] IP AP: %s\n", apIP.toString().c_str());
 
-    dnsServer.start(53, "*", WiFi.softAPIP());
+    // Configurare DNS - trebuie să redirecționeze TOT traficul către ESP
+    dnsServer.setErrorReplyCode(DNSReplyCode::NoError);
+    dnsServer.start(53, "*", apIP);  // "*" înseamnă orice domeniu
 
+   
+    // 1. Pagina principală
     server.on("/", HTTP_GET, [&](AsyncWebServerRequest *request) {
         request->send_P(200, "text/html", WIFI_CONFIG_PAGE);
     });
 
+    // 2. Endpoint-uri API
     server.on("/scan", HTTP_GET, [&](AsyncWebServerRequest *request) {
         int n = WiFi.scanNetworks();
         String json = "[";
-
         for (int i = 0; i < n; i++) {
             if (i) json += ",";
             json += "{\"ssid\":\"" + WiFi.SSID(i) + "\",\"rssi\":" + String(WiFi.RSSI(i)) + "}";
         }
-
         json += "]";
         request->send(200, "application/json", json);
+        WiFi.scanDelete();
     });
 
     server.on("/add", HTTP_POST, [&](AsyncWebServerRequest *request) {
@@ -201,46 +208,50 @@ void AsyncWiFiManagerSimple::startConfigMode() {
         handleDelete(request);
     });
 
-    // ----- CAPTIVE PORTAL DETECTION ROUTES -----
+    // 3. Captive Portal - rute specifice pentru diferite platforme
+    // Toate redirecționează către pagina principală
+    
+    // Android
+    server.on("/generate_204", HTTP_GET, [&](AsyncWebServerRequest *request) {
+        request->redirect("/");
+    });
+    
+    // Windows
+    server.on("/connecttest.txt", HTTP_GET, [&](AsyncWebServerRequest *request) {
+        request->redirect("/");
+    });
+    server.on("/hotspot-detect.html", HTTP_GET, [&](AsyncWebServerRequest *request) {
+        request->redirect("/");
+    });
+    
+    // Apple
+    server.on("/library/test/success.html", HTTP_GET, [&](AsyncWebServerRequest *request) {
+        request->redirect("/");
+    });
+    server.on("/success.txt", HTTP_GET, [&](AsyncWebServerRequest *request) {
+        request->send(200, "text/plain", "success");
+    });
+    
+    // Samsung
+    server.on("/kindle-wifi/wifistub.html", HTTP_GET, [&](AsyncWebServerRequest *request) {
+        request->redirect("/");
+    });
 
-// Android / Chrome
-server.on("/generate_204", HTTP_GET, [&](AsyncWebServerRequest *request) {
-    request->redirect("http://192.168.4.1/");
-});
-server.on("/gen_204", HTTP_GET, [&](AsyncWebServerRequest *request) {
-    request->redirect("http://192.168.4.1/");
-});
+    // 4. IMPORTANT: Ruta pentru "captive.apple.com" (foarte important pentru iOS/macOS)
+    server.on("/captive.apple.com", HTTP_GET, [&](AsyncWebServerRequest *request) {
+        request->redirect("/");
+    });
 
-// Windows
-server.on("/connecttest.txt", HTTP_GET, [&](AsyncWebServerRequest *request) {
-    request->redirect("http://192.168.4.1/");
-});
-server.on("/redirect", HTTP_GET, [&](AsyncWebServerRequest *request) {
-    request->redirect("http://192.168.4.1/");
-});
-server.on("/hotspot-detect.html", HTTP_GET, [&](AsyncWebServerRequest *request) {
-    request->redirect("http://192.168.4.1/");
-});
-
-// Apple (iOS / macOS)
-server.on("/library/test/success.html", HTTP_GET, [&](AsyncWebServerRequest *request) {
-    request->redirect("http://192.168.4.1/");
-});
-server.on("/hotspotdetect.html", HTTP_GET, [&](AsyncWebServerRequest *request) {
-    request->redirect("http://192.168.4.1/");
-});
-server.on("/success.txt", HTTP_GET, [&](AsyncWebServerRequest *request) {
-    request->send(200, "text/plain", "success");
-});
-
-// Catch-all pentru orice altă cerere necunoscută → redirect
-server.onNotFound([&](AsyncWebServerRequest *request) {
-    request->redirect("http://192.168.4.1/");
-});
+    // 5. Orice altă rută - redirecționează la /
+    server.onNotFound([&](AsyncWebServerRequest *request) {
+        request->redirect("/");
+    });
 
     server.begin();
     inConfigMode = true;
     configStartTime = millis();
+    
+    Serial.println("[AP] Server web pornit. Mod configurare activat.");
 }
 
 // ---------------------------------------------------------
