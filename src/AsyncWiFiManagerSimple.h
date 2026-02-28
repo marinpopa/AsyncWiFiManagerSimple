@@ -11,6 +11,9 @@
 #define CONFIG_TIMEOUT 120
 #define RECONNECT_ATTEMPTS 10
 
+// Namespace unic pentru NVS — evită conflicte cu codul principal
+#define PREFS_NAMESPACE "awm-wifi"
+
 #ifndef AP_SSID
 #define AP_SSID "ESP_Config"
 #endif
@@ -38,6 +41,14 @@ private:
     unsigned long configStartTime = 0;
     bool inConfigMode = false;
     int reconnectAttempts = 0;
+
+    // FIX #5: Mută variabilele din static local în membri privați
+    // → evită stări persistente greșite după sleep/wake pe ESP32-S3
+    unsigned long lastReconnectAttempt = 0;
+    bool wasConnected = false;
+
+    // FIX #6: Salvează SSID-ul înainte de pierderea conexiunii
+    String lastConnectedSSID = "";
 
     struct WiFiNetwork {
         String ssid;
