@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 #include "AsyncWiFiManagerSimple.h"
 
 // ---------------------------------------------------------
@@ -348,6 +348,7 @@ void AsyncWiFiManagerSimple::checkWiFiConnection() {
 
     wasConnected = isConnected;
 }
+
 =======
 #include "AsyncWiFiManagerSimple.h"
 
@@ -756,4 +757,4 @@ void AsyncWiFiManagerSimple::checkWiFiConnection() {
 
     wasConnected = isConnected;
 }
->>>>>>> 8ed52e7 (Added Captive Portal – automatically opens web page)
+
