@@ -204,7 +204,7 @@ void AsyncWiFiManagerSimple::startConfigMode() {
         request->send_P(200, "text/html", WIFI_CONFIG_PAGE);
     });
 
-    // FIX #4: scanNetworks(false) = sincron, dar mutat în handler dedicat
+    //  FIX #4: scanNetworks(false) = sincron, dar mutat în handler dedicat
     //         cu timeout implicit 10s → acceptabil pentru UX
     server.on("/scan", HTTP_GET, [&](AsyncWebServerRequest *request) {
         Serial.println("[Scan] Incep scanarea retelelor WiFi...");
@@ -239,9 +239,9 @@ void AsyncWiFiManagerSimple::startConfigMode() {
         handleDelete(request);
     });
 
-    // --- Captive Portal: rute pentru detecție automată ---
+    //  --- Captive Portal: rute pentru detecție automată ---
 
-    // Android / Chrome
+    //  Android / Chrome
     server.on("/generate_204", HTTP_GET, [&](AsyncWebServerRequest *request) {
         request->redirect("http://192.168.4.1/");
     });

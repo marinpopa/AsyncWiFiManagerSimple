@@ -11,7 +11,7 @@
 #define CONFIG_TIMEOUT 120
 #define RECONNECT_ATTEMPTS 10
 
-// Namespace unic pentru NVS — evită conflicte cu codul principal
+//  Namespace unic pentru NVS — evită conflicte cu codul principal
 #define PREFS_NAMESPACE "awm-wifi"
 
 #ifndef AP_SSID
